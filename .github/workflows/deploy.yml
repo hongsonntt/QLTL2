@@ -27,6 +27,7 @@ jobs:
         with:
           flutter-version: '3.16.0'
           channel: 'stable'
+          cache: true
       
       - name: Enable web
         run: flutter config --enable-web
@@ -35,12 +36,17 @@ jobs:
         run: flutter pub get
         
       - name: Build web
-        run: flutter build web --release --base-href /QLTL/
-        
-      # Remove any CNAME file if it exists
-      - name: Remove CNAME
         run: |
-          rm -f build/web/CNAME
+          flutter build web \
+            --release \
+            --base-href /QLTL/ \
+            --web-renderer html \
+            --dart-define=FLUTTER_WEB_USE_SKIA=true
+        
+      - name: Configure build
+        run: |
+          cd build/web
+          cp index.html 404.html
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
