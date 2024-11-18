@@ -39,14 +39,16 @@ jobs:
         run: |
           flutter build web \
             --release \
-            --base-href /QLTL/ \
+            --base-href /QLTL2/ \
             --web-renderer html \
-            --dart-define=FLUTTER_WEB_USE_SKIA=true
+            --dart-define=FLUTTER_WEB_USE_SKIA=false
         
       - name: Configure build
         run: |
           cd build/web
           cp index.html 404.html
+          # Ensure main.dart.js exists and is readable
+          chmod 644 main.dart.js
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
