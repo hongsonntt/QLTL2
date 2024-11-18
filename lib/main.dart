@@ -95,127 +95,135 @@ class _MainScreenState extends State<MainScreen> {
       });
     }
   }
-
-  Widget _buildNumberButton(String number) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: TextButton(
-          onPressed: () => _addDigit(number),
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(50),
-              side: BorderSide(color: Colors.grey.shade300),
-            ),
-          ),
-          child: Text(
-            number,
-            style: const TextStyle(fontSize: 24, color: Colors.black87),
+Widget _buildNumberButton(String number, StateSetter setStateDialog) {
+  return Expanded(
+    child: Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: TextButton(
+        onPressed: () {
+          _addDigit(number);
+          setStateDialog(() {});
+        },
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+            side: BorderSide(color: const Color.fromARGB(255, 255, 140, 0)),
           ),
         ),
+        child: Text(
+          number,
+          style: const TextStyle(fontSize: 24, color: Colors.black87),
+        ),
       ),
-    );
-  }
-
-  void _showPasscodeDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async => false,
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              return AlertDialog(
-                title: const Text(
-                  'Nhập mã truy cập\n(Ngày hiện tại)',
-                  textAlign: TextAlign.center,
-                ),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Passcode dots
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(4, (index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 8),
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: index < _currentPasscode.length 
-                              ? const Color.fromARGB(255, 73, 54, 244)
-                              : Colors.grey.shade300,
+    ),
+  );
+}
+void _showPasscodeDialog() {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return WillPopScope(
+        onWillPop: () async => false,
+        child: StatefulBuilder(
+          builder: (context, setStateDialog) {  // Rename to avoid confusion
+            return AlertDialog(
+              title: const Text(
+                'Nhập mã truy cập\n(Ngày hiện tại)',
+                textAlign: TextAlign.center,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Passcode display
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(4, (index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey.shade300,
+                            width: 1.5,
                           ),
-                        );
-                      }),
-                    ),
-                    const SizedBox(height: 20),
-                    // Number pad
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            _buildNumberButton('1'),
-                            _buildNumberButton('2'),
-                            _buildNumberButton('3'),
-                          ],
+                          color: index < _currentPasscode.length 
+                            ? Colors.black87  
+                            : Colors.transparent,
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            _buildNumberButton('4'),
-                            _buildNumberButton('5'),
-                            _buildNumberButton('6'),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            _buildNumberButton('7'),
-                            _buildNumberButton('8'),
-                            _buildNumberButton('9'),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(child: Container()),
-                            _buildNumberButton('0'),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: TextButton(
-                                  onPressed: _removeDigit,
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 20),
-                                    backgroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50),
-                                      side: BorderSide(color: Colors.grey.shade300),
-                                    ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 20),
+                  // Number pad
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          _buildNumberButton('1', setStateDialog),  // Pass setStateDialog
+                          _buildNumberButton('2', setStateDialog),
+                          _buildNumberButton('3', setStateDialog),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _buildNumberButton('4', setStateDialog),
+                          _buildNumberButton('5', setStateDialog),
+                          _buildNumberButton('6', setStateDialog),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          _buildNumberButton('7', setStateDialog),
+                          _buildNumberButton('8', setStateDialog),
+                          _buildNumberButton('9', setStateDialog),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(child: Container()),
+                          _buildNumberButton('0', setStateDialog),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: TextButton(
+                                onPressed: () {
+                                  _removeDigit();
+                                  setStateDialog(() {});  // Update dialog state
+                                },
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 20),
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50),
+                                    side: BorderSide(color: Colors.grey.shade300),
                                   ),
-                                  child: const Icon(Icons.backspace_outlined, color: Colors.black87),
                                 ),
+                                child: const Icon(Icons.backspace_outlined, color: Colors.black87),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                contentPadding: const EdgeInsets.all(20),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              contentPadding: const EdgeInsets.all(20),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
 
   void _onItemTapped(int index) {
     setState(() {
@@ -240,13 +248,17 @@ class _MainScreenState extends State<MainScreen> {
       child: Scaffold(
         body: _screens[_selectedIndex],
         bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(16.0),
+  padding: EdgeInsets.symmetric(
+    horizontal: MediaQuery.of(context).size.width < 600 ? 8.0 : 16.0,
+    vertical: MediaQuery.of(context).size.width < 600 ? 4.0 : 8.0,
+  ),
           child: Container(
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 12,
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  spreadRadius: -5, 
                   offset: const Offset(0, 4),
                 ),
               ],
